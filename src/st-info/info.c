@@ -15,6 +15,8 @@
 #include <helper.h>
 #include <usb.h>
 
+#include <stdlib.h>
+
 static void usage(void) {
     puts("st-info --version");
     puts("st-info --probe [--connect-under-reset] [--hot-plug] [--freq=<kHz>]");
@@ -77,6 +79,12 @@ static int32_t print_data(int32_t ac, char **av) {
         return (0);
     }
 
+    // use getenv() in c file instead of hardcoding the path in cmake
+    char *STLINK_CHIPS_DIR = getenv("STLINK_CHIPS_DIR");
+    if (STLINK_CHIPS_DIR == NULL || STLINK_CHIPS_DIR[0] == '\0') {
+        printf  ("Environment variable STLINK_CHIPS_DIR is not set or blank; please set it to the path containing the chip definition files\n");
+        return (-1);
+    } 
     init_chipids(STLINK_CHIPS_DIR);
 
     for (int32_t i=2; i<ac; i++) {

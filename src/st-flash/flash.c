@@ -100,6 +100,13 @@ int32_t main(int32_t ac, char** av) {
     }
 
     printf("st-flash %s\n", STLINK_VERSION);
+
+    // use getenv() in c file instead of hardcoding the path in cmake
+    char *STLINK_CHIPS_DIR = getenv("STLINK_CHIPS_DIR");
+    if (STLINK_CHIPS_DIR == NULL || STLINK_CHIPS_DIR[0] == '\0') {
+        printf  ("Environment variable STLINK_CHIPS_DIR is not set or blank; please set it to the path containing the chip definition files\n");
+        return (-1);
+    }
     init_chipids (STLINK_CHIPS_DIR);
 
     sl = stlink_open_usb(o.log_level, o.connect, (char *)o.serial, o.freq);

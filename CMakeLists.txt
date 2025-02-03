@@ -239,39 +239,6 @@ endif()
 # Libraries
 ###
 
-# Set the environment variable LD_LIBRARY_PATH to point to /usr/local/lib (per default).
-execute_process(COMMAND bash -c "export LD_LIBRARY_PATH=${CMAKE_INSTALL_LIBDIR}")
-
-
-###
-# Shared library
-###
-
-# Set library name
-set(STLINK_LIB_SHARED ${PROJECT_NAME}-shared)
-
-add_library(${STLINK_LIB_SHARED} SHARED ${STLINK_HEADERS} ${STLINK_SOURCE})
-
-set(STLINK_SHARED_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH})
-message(STATUS "STLINK_LIB_SHARED: ${STLINK_LIB_SHARED}")
-message(STATUS "VERSION: ${STLINK_SHARED_VERSION}")
-
-set_target_properties(${STLINK_LIB_SHARED} PROPERTIES
-                        SOVERSION ${PROJECT_VERSION_MAJOR}
-                        VERSION ${STLINK_SHARED_VERSION}
-                        OUTPUT_NAME ${PROJECT_NAME}
-                        )
-
-# Link shared library
-if (WIN32)
-    target_link_libraries(${STLINK_LIB_SHARED} ${LIBUSB_LIBRARY} ${SSP_LIB} wsock32 ws2_32)
-else ()
-    target_link_libraries(${STLINK_LIB_SHARED} ${LIBUSB_LIBRARY} ${SSP_LIB})
-endif()
-
-install(TARGETS ${STLINK_LIB_SHARED} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
-
 ###
 # Static library
 ###
@@ -326,17 +293,10 @@ add_executable(st-info ${ST-INFO_SOURCES})
 add_executable(st-util ${ST-UTIL_SOURCES})
 add_executable(st-trace ${ST-TRACE_SOURCES})
 
-if (WIN32)
-    target_link_libraries(st-flash ${STLINK_LIB_STATIC})
-    target_link_libraries(st-info ${STLINK_LIB_STATIC})
-    target_link_libraries(st-util ${STLINK_LIB_STATIC})
-    target_link_libraries(st-trace ${STLINK_LIB_STATIC})
-else ()
-    target_link_libraries(st-flash ${STLINK_LIB_SHARED})
-    target_link_libraries(st-info ${STLINK_LIB_SHARED})
-    target_link_libraries(st-util ${STLINK_LIB_SHARED})
-    target_link_libraries(st-trace ${STLINK_LIB_SHARED})
-endif()
+target_link_libraries(st-flash ${STLINK_LIB_STATIC})
+target_link_libraries(st-info ${STLINK_LIB_STATIC})
+target_link_libraries(st-util ${STLINK_LIB_STATIC})
+target_link_libraries(st-trace ${STLINK_LIB_STATIC})
 
 install(TARGETS st-flash DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(TARGETS st-info DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -362,17 +322,13 @@ endif()
 
 ###
 # Additional build tasks
+# Set the path manually by user.
 ###
 
 # MCU configuration files
-if (WIN32)
-    set(CMAKE_CHIPS_DIR ${CMAKE_INSTALL_PREFIX}/config/chips)
-else ()
-    set(CMAKE_CHIPS_DIR ${CMAKE_INSTALL_FULL_DATADIR}/${PROJECT_NAME}/config/chips)
-endif()
-add_definitions( -DSTLINK_CHIPS_DIR="${CMAKE_CHIPS_DIR}" )
-file(GLOB CHIP_FILES ${CMAKE_SOURCE_DIR}/config/chips/*.chip)
-install(FILES ${CHIP_FILES} DESTINATION ${CMAKE_CHIPS_DIR})
+# set(CMAKE_CHIPS_DIR ${CMAKE_INSTALL_BINDIR}/config/chips)
+# file(GLOB CHIP_FILES ${CMAKE_SOURCE_DIR}/config/chips/*.chip)
+# install(FILES ${CHIP_FILES} DESTINATION ${CMAKE_CHIPS_DIR})
 
 # Documentation / manpages
 option(STLINK_GENERATE_MANPAGES "Generate manpages with pandoc" OFF)

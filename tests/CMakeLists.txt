@@ -4,10 +4,7 @@
 
 set(TESTEXEC usb sg)
 
-set(TEST_DEPENDENCY ${STLINK_LIB_SHARED})
-if (WIN32)
-    set(TEST_DEPENDENCY ${STLINK_LIB_STATIC})
-endif()
+set(TEST_DEPENDENCY ${STLINK_LIB_STATIC})
 
 foreach (test ${TESTEXEC})
     add_executable(test-${test} ${test}.c)
